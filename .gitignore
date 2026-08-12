@@ -15,6 +15,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Local application data
+/data/contacts.txt
+
 # Copilot/AI Agent files
 .agents/
 .codex/

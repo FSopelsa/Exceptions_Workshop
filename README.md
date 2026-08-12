@@ -1,90 +1,130 @@
 # Contact App - Exceptions Workshop
 
-A Java/Maven workshop for building a file-backed contact application while
-practising validation, checked exceptions, file I/O, and MVC.
+This is my Java workshop project for managing contacts in a text file. The
+project practises validation, checked exceptions, try-with-resources, file I/O,
+and the Model-View-Controller pattern.
 
 ## Current progress
 
-Completed through **2: Custom Exceptions (Checked)**:
+I have completed the implementation through:
 
-- Maven project and Git repository are configured.
-- `Contact` validates its state with unchecked `IllegalArgumentException`s.
-- `ContactStorageException` and `DuplicateContactException` are checked
-  exceptions, ready for the data layer.
-- Unit tests verify the validation rules.
+- **1: The Model & Validation (Unchecked)**
+- **2: Custom Exceptions (Checked)**
+- **3: The Data Layer (DAO)**
+- **4: The View & Controller (MVC)**
 
-The DAO, view, controller, `main` class, file storage, and central exception
-handler are intentionally planned for later workshop sections and are not yet
-implemented.
+The application can add contacts, list all contacts, search by name, and keep
+the contacts between runs in `data/contacts.txt`.
 
 ## Design
 
-The code follows the workshop's layered MVC direction. All classes live below
-the base package `se.lexicon.contactapp`; the layer packages are `model`,
-`data`, `view`, `controller`, and `exception`.
+I used the suggested package structure under the base package
+`se.lexicon.contactapp`:
+
+```text
+src/main/java/se/lexicon/contactapp/
+|-- Main.java
+|-- controller/
+|   `-- ContactController.java
+|-- data/
+|   |-- ContactDAO.java
+|   `-- FileContactDAOImpl.java
+|-- exception/
+|   |-- ContactStorageException.java
+|   |-- DuplicateContactException.java
+|   `-- ExceptionHandler.java
+|-- model/
+|   `-- Contact.java
+`-- view/
+    `-- ContactView.java
+```
 
 ```mermaid
 flowchart LR
-    V[View] --> C[Controller]
-    C --> M[Model: Contact]
-    C --> D[Data: ContactDAO]
-    D --> F[Text file]
-    M -. invalid input .-> IAE[IllegalArgumentException]
-    D -. storage or duplicate .-> CE[Checked custom exceptions]
+    User --> View[ContactView]
+    View --> Controller[ContactController]
+    Controller --> Model[Contact]
+    Controller --> DAO[ContactDAO]
+    DAO --> FileDAO[FileContactDAOImpl]
+    FileDAO --> File[data/contacts.txt]
+    Controller --> Handler[ExceptionHandler]
+    Handler --> View
 ```
 
-### Model validation
+### Model and validation
 
-`Contact` keeps a name and phone number. The constructor delegates to the
-setters, so there is one source of truth for validation both when a contact is
-created and when it is later changed.
+`Contact` contains a name and phone number. The constructor uses the setters so
+the same validation is used when a contact is created or changed.
 
-- A name must be non-null and contain at least one non-whitespace character.
-  It is stored trimmed, which avoids contacts that differ only by accidental
-  surrounding spaces.
-- A phone number must match `^\\d{10}$`: exactly ten digits, with no spaces,
-  signs, or other characters.
-- Invalid model input is a programming/input-validation issue, so
-  `IllegalArgumentException` is used. It is unchecked and callers are not
-  forced to catch it.
+- The name cannot be null or blank and is stored without surrounding spaces.
+- The phone number must match `^\d{10}$`, meaning exactly ten digits.
+- Invalid values throw `IllegalArgumentException`, which is unchecked.
 
-### Checked custom exceptions
+### Data layer
 
-The future DAO will communicate expected recoverable persistence failures
-without printing to the console:
+`ContactDAO` defines the persistence operations without deciding how contacts
+are stored. `FileContactDAOImpl` implements the interface using a UTF-8 text
+file.
 
-- `ContactStorageException` represents a file read/write or storage failure.
-- `DuplicateContactException` represents an attempt to save an already-known
-  contact.
+- `findAll()` reads and returns every contact.
+- `save()` checks for duplicate names and phone numbers before appending.
+- `findByName()` performs a case-insensitive name search and returns `null` if
+  no contact is found.
+- Each contact is stored on one line as `name;phoneNumber`.
+- All readers and writers use try-with-resources so they are closed safely.
 
-Both extend `Exception`, making them checked. This makes the data layer's
-failure paths explicit to the controller, which will decide what the user sees.
+The DAO never prints to the console. File failures are wrapped in
+`ContactStorageException`, and duplicate contacts cause
+`DuplicateContactException`. Both are checked exceptions, so the caller must
+handle or declare them.
 
-## Project layout
+### View, controller, and exception handling
+
+`ContactView` owns all console input and output. `ContactController` contains
+the menu loop and coordinates the view, model, and DAO. `ExceptionHandler`
+converts exceptions into user-friendly messages, and the controller asks the
+view to display them. This keeps console output out of the model and data
+layers.
+
+`Main` only creates the DAO, view, and controller, then starts the controller.
+
+## Prerequisites
+
+- Java 21 or newer
+- Maven 3
+
+Maven project coordinates:
 
 ```text
-src/
-├── main/java/se/lexicon/contactapp/
-│   ├── model/Contact.java
-│   └── exception/
-│       ├── ContactStorageException.java
-│       └── DuplicateContactException.java
-└── test/java/se/lexicon/contactapp/model/ContactTest.java
+Group ID:    se.lexicon
+Artifact ID: contact-app-workshop
+Version:     1.0-SNAPSHOT
 ```
 
-## Prerequisites verified
+## Build and test
 
-- Maven coordinates: `se.lexicon:contact-app-workshop:1.0-SNAPSHOT`
-- Java source/target level: 21 (the locally installed JDK 26 compiles with
-  `--release 21`)
-- Remote: `https://github.com/FSopelsa/Exceptions_Workshop.git`
-- `.gitignore` excludes IDE metadata and build output. IntelliJ's local
-  `.idea` directory is deliberately not tracked.
-
-## Run the tests
-
-From the repository root:
+Run from the repository root:
 
 ```powershell
 mvn clean test
 ```
+
+The project currently has 12 tests covering model validation, file storage,
+duplicate detection, malformed data, and the controller flow.
+
+## Run the application
+
+Build the executable JAR:
+
+```powershell
+mvn clean package
+```
+
+Then run it:
+
+```powershell
+java -jar target/contact-app-workshop-1.0-SNAPSHOT.jar
+```
+
+The application creates `data/contacts.txt` automatically on first use. This
+local data file is ignored by Git.
