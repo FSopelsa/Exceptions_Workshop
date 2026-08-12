@@ -88,13 +88,3 @@ From the repository root:
 ```powershell
 mvn clean test
 ```
-
-After later workshop sections add the application entry point, this README will
-also include a command for running the contact app.
-
-## Workshop reminder
-
-When the workshop is complete, **share the repository link with your
-instructor**:
-
-<https://github.com/FSopelsa/Exceptions_Workshop>
