@@ -32,11 +32,12 @@ public class ContactController {
                     case "1" -> listContacts();
                     case "2" -> addContact();
                     case "3" -> findContact();
+                    case "4" -> contactView.displayMvcExplanation();
                     case "0" -> {
                         contactView.displayMessage("Goodbye!");
                         running = false;
                     }
-                    default -> contactView.displayError("Choose 0, 1, 2, or 3.");
+                    default -> contactView.displayError("Choose 0, 1, 2, 3, or 4.");
                 }
             } catch (NoSuchElementException exception) {
                 contactView.displayMessage("Input closed. Goodbye!");

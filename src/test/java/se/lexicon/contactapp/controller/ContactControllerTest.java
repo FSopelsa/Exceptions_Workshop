@@ -64,4 +64,23 @@ class ContactControllerTest {
         assertTrue(output.contains("Error: A contact with that name or phone number already exists."));
         assertTrue(output.contains("Goodbye!"));
     }
+
+    @Test
+    void runDisplaysMvcExplanationAndDocumentationReference() {
+        String userInput = "4" + System.lineSeparator() + "0" + System.lineSeparator();
+        ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
+        ContactView view = new ContactView(
+                new Scanner(userInput),
+                new PrintStream(outputBytes, true, StandardCharsets.UTF_8)
+        );
+        ContactDAO contactDAO = new FileContactDAOImpl(tempDirectory.resolve("contacts.txt"));
+        ContactController controller = new ContactController(contactDAO, view);
+
+        controller.run();
+
+        String output = outputBytes.toString(StandardCharsets.UTF_8);
+        assertTrue(output.contains("MVC separates the application"));
+        assertTrue(output.contains("docs/MVC_DESIGN_PATTERN.md"));
+        assertTrue(output.contains("Goodbye!"));
+    }
 }

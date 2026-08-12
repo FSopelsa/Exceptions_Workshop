@@ -32,7 +32,25 @@ public class ContactView {
         output.println("1. List contacts");
         output.println("2. Add contact");
         output.println("3. Find contact by name");
+        output.println("4. About MVC");
         output.println("0. Exit");
+    }
+
+    public void displayMvcExplanation() {
+        output.println("""
+
+                MVC separates the application into three responsibilities:
+                - Model: stores contact data and enforces validation rules.
+                - View: handles everything the user sees and enters.
+                - Controller: coordinates the View, Model, and data layer.
+
+                In this app, Contact is the Model, ContactView is the View, and
+                ContactController handles the application flow. ContactDAO keeps
+                persistence separate from the user interface.
+
+                Full explanation and Mermaid diagram:
+                docs/MVC_DESIGN_PATTERN.md
+                """);
     }
 
     public void displayContacts(List<Contact> contacts) {
