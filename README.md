@@ -12,9 +12,12 @@ I have completed the implementation through:
 - **2: Custom Exceptions (Checked)**
 - **3: The Data Layer (DAO)**
 - **4: The View & Controller (MVC)**
+- **5: The MVC Design Pattern** — explained in
+  [`docs/MVC_DESIGN_PATTERN.md`](docs/MVC_DESIGN_PATTERN.md)
 
-The application can add contacts, list all contacts, search by name, and keep
-the contacts between runs in `data/contacts.txt`.
+The application can add contacts, list all contacts, search by name, display a
+short MVC explanation, and keep the contacts between runs in
+`data/contacts.txt`.
 
 ## Design
 
@@ -109,7 +112,7 @@ Run from the repository root:
 mvn clean test
 ```
 
-The project currently has 12 tests covering model validation, file storage,
+The project currently has 13 tests covering model validation, file storage,
 duplicate detection, malformed data, and the controller flow.
 
 ## Run the application
